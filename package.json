@@ -4,8 +4,19 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "start"
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.6.0"
+  },
+  "dependencies": {
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.27",
+    "nodemon": "^2.0.4"
+  }
 }
