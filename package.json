@@ -1,0 +1,11 @@
+{
+  "name": "v_tikhonov_course_05_project_13",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "start"
+  },
+  "author": "",
+  "license": "ISC"
+}
