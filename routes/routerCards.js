@@ -1,12 +1,11 @@
 /* ИМПОРТ */
 const routerCards = require('express').Router();
-
-const { sendWholeJson } = require('../helpers/helpers.js');
+const { getAllCards, createCard } = require('../controllers/cards');
 
 /* РУТЕРЫ */
-routerCards.get('/cards', (req, res) => {
-  sendWholeJson('cards.json', res);
-});
+routerCards.get('/cards', getAllCards);
+
+routerCards.post('/cards', createCard);
 
 /* ЭКСПОРТ */
 module.exports = routerCards;
