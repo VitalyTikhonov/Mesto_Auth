@@ -1,5 +1,8 @@
 const path = require('path');
 const fs = require('fs');
+const bodyParser = require('body-parser');
+
+const bodyParserJson = bodyParser.json({ type: 'application/json' });
 
 function readFileAsset(fileName, res) {
   const readStream = fs.createReadStream(path.join(__dirname, '../data', fileName), { encoding: 'utf8' });
@@ -19,6 +22,7 @@ function sendWholeJson(file, res) {
 }
 
 module.exports = {
+  bodyParserJson,
   readFileAsset,
   searchForUser,
   sendWholeJson,

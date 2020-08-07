@@ -1,35 +1,14 @@
 /* ИМПОРТ */
 const routerUsers = require('express').Router();
-const { createUser } = require('../controllers/users');
-
-const { readFileAsset, searchForUser, sendWholeJson } = require('../helpers/helpers.js');
+const { createUser, getAllUsers, getSingleUser } = require('../controllers/users');
+const { bodyParserJson } = require('../helpers/helpers');
 
 /* РУТЕРЫ */
-routerUsers.get('/users', (req, res) => {
-  sendWholeJson('users.json', res);
-});
+routerUsers.get('/users', getAllUsers);
 
-routerUsers.get('/users/:id', (req, res) => {
-  const usersReadStream = readFileAsset('users.json', res);
-  let users = '';
+routerUsers.get('/users/:id', getSingleUser);
 
-  usersReadStream.on('data', (data) => {
-    users += data;
-  });
-
-  usersReadStream.on('end', () => {
-    users = JSON.parse(users);
-
-    if (!searchForUser(users, [req.params.id])) {
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-      return;
-    }
-
-    res.send(searchForUser(users, [req.params.id]));
-  });
-});
-
-routerUsers.post('/users', createUser);
+routerUsers.post('/users', bodyParserJson, createUser);
 
 /* ЭКСПОРТ */
 module.exports = routerUsers;
