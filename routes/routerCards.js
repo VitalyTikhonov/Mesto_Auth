@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 /* ИМПОРТ */
 const routerCards = require('express').Router();
 

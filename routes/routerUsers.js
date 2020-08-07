@@ -1,6 +1,6 @@
-/* eslint-disable no-underscore-dangle */
 /* ИМПОРТ */
 const routerUsers = require('express').Router();
+const { createUser } = require('../controllers/users');
 
 const { readFileAsset, searchForUser, sendWholeJson } = require('../helpers/helpers.js');
 
@@ -28,6 +28,8 @@ routerUsers.get('/users/:id', (req, res) => {
     res.send(searchForUser(users, [req.params.id]));
   });
 });
+
+routerUsers.post('/users', createUser);
 
 /* ЭКСПОРТ */
 module.exports = routerUsers;
