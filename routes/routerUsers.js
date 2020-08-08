@@ -6,6 +6,7 @@ const {
   getAllUsers,
   getSingleUser,
   updateProfile,
+  updateAvatar,
 } = require('../controllers/users');
 
 // const bodyParserJson = bodyParser.json({ type: 'application/json' });
@@ -16,6 +17,8 @@ routerUsers.get('/', getAllUsers);
 routerUsers.get('/:id', getSingleUser);
 
 routerUsers.patch('/me', updateProfile);
+
+routerUsers.patch('/me/avatar', updateAvatar);
 
 // routerUsers.post('/', bodyParser.json({ type: 'application/json' }), createUser);
 // routerUsers.post('/', bodyParserJson, createUser);

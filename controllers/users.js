@@ -25,10 +25,26 @@ function getSingleUser(req, res) {
 }
 
 function updateProfile(req, res) {
-  const { name, about, avatar } = req.body;
+  const { name, about } = req.body;
   controllerPromiseHandler(User.findByIdAndUpdate(
     req.user._id,
-    { name, about, avatar },
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+      upsert: true,
+    },
+  ), req, res);
+  // User.findById(req.params.id)
+  // .then((user) => res.send({ data: user }))
+  // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+function updateAvatar(req, res) {
+  const { avatar } = req.body;
+  controllerPromiseHandler(User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
     {
       new: true,
       runValidators: true,
@@ -45,4 +61,5 @@ module.exports = {
   getAllUsers,
   getSingleUser,
   updateProfile,
+  updateAvatar,
 };
