@@ -18,13 +18,13 @@ app.use(bodyParser.json());
 app.listen(PORT);
 app.use((req, res, next) => {
   req.user = {
-    _id: '5f2d8468c9f780916a588170',
+    _id: '5f2ee70bfdc57beb06e3c573',
   };
 
   next();
 });
-app.use(routerCards);
-app.use(routerUsers);
+app.use('/cards', routerCards);
+app.use('/users', routerUsers);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
