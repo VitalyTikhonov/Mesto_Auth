@@ -3,8 +3,9 @@
 
 function controllerPromiseHandler(promise, req, res) {
   promise
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((respObj) => res.send({ data: respObj }))
+    // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => res.status(500).send(err));
 }
 
 module.exports = {

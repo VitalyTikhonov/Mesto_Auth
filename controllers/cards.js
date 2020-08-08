@@ -10,8 +10,8 @@ function getAllCards(req, res) {
 
 function createCard(req, res) {
   const { name, link } = req.body;
-
-  controllerPromiseHandler(Card.create({ name, link }), req, res);
+  const owner = req.user._id;
+  controllerPromiseHandler(Card.create({ name, link, owner }), req, res);
   // User.create({ name, link })
   // .then((user) => res.send({ data: user }))
   // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
