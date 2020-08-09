@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { urlRegex } = require('../helpers/helpers');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -16,7 +18,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: true,
-    match: /^https?:\/\/(?:(?:\d{1,3}(?:\.\d{1,3}){1,3}\.\d{1,3}(?::(?:[1-9][0-9]{1,3}|(?:[1-6][0-9]{4}))(\/$)?)(?:(?:\/[a-z0-9]+)+\/?#?)?)|(?:(?:www\.)?[a-z0-9]+(?:-[a-z0-9]+)*\.(?:[a-z0-9]+))(?::(?:[1-9][0-9]{1,3}|(?:[1-6][0-9]{4}))(\/$)?)?(?:(?:\/[a-z0-9]+)+\/?#?)?)$/,
+    match: urlRegex,
   },
 });
 

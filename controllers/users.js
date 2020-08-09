@@ -4,10 +4,10 @@ const { controllerPromiseHandler } = require('../helpers/helpers');
 function createUser(req, res) {
   const { name, about, avatar } = req.body;
 
-  controllerPromiseHandler(User.create({ name, about, avatar }), req, res);
-  // User.create({ name, about, avatar })
-  //   .then((user) => res.send({ data: user }))
-  //   .catch(() => res.status(500).send(err));
+  // controllerPromiseHandler(User.create({ name, about, avatar }), req, res);
+  User.create({ name, about, avatar })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(400).send({ message: `Ошибка! ${err.message}` }));
 }
 
 function getAllUsers(req, res) {
