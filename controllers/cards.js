@@ -5,16 +5,16 @@ function getAllCards(req, res) {
   controllerPromiseHandler(Card.find({}), req, res);
   // Card.find({})
   //   .then((users) => res.send({ data: users }))
-  //   .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  //   .catch(() => res.status(500).send(err));
 }
 
 function createCard(req, res) {
   const { name, link } = req.body;
   const owner = req.user._id;
   controllerPromiseHandler(Card.create({ name, link, owner }), req, res);
-  // User.create({ name, link })
-  // .then((user) => res.send({ data: user }))
-  // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  // Card.create({ name, link, owner })
+  //   .then((user) => res.send({ data: user }))
+  //   .catch((err) => res.status(500).send(err));
 }
 
 function likeCard(req, res) {
