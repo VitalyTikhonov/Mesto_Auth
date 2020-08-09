@@ -17,7 +17,25 @@ function createCard(req, res) {
   // .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
 
+function likeCard(req, res) {
+  controllerPromiseHandler(Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  ), req, res);
+}
+
+function dislikeCard(req, res) {
+  controllerPromiseHandler(Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  ), req, res);
+}
+
 module.exports = {
   getAllCards,
   createCard,
+  likeCard,
+  dislikeCard,
 };
