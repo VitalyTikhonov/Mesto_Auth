@@ -14,7 +14,8 @@ function createCard(req, res) {
   // controllerPromiseHandler(Card.create({ name, link, owner }), req, res);
   Card.create({ name, link, owner })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send({ message: `Ошибка! ${err.message}` }));
+    // .catch((err) => res.status(400).send({ message: `Ошибка! ${err.message}` }));
+    .catch((err) => res.status(400).send(err));
 }
 
 function likeCard(req, res) {
