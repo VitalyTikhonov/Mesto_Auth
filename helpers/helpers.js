@@ -1,4 +1,13 @@
-const urlRegex = /^https?:\/\/(?:(?:\d{1,3}(?:\.\d{1,3}){1,3}\.\d{1,3}(?::(?:[1-9][0-9]{1,3}|(?:[1-6][0-9]{4}))(\/$)?)(?:(?:\/[a-z0-9]+)+(?:\/|#|(?:\.[a-z0-9])+)?)?)|(?:(?:www\.)?[a-z0-9]+(?:(?:[-.][a-z0-9]+){1,}(?=\.))\.[a-z0-9]+)(?::(?:[1-9][0-9]{1,3}|(?:[1-6][0-9]{4}))(\/$)?)?(?:(?:\/[A-z0-9]+){1,}(?:\/|#|(?:\.[A-z0-9]+))?)?)$/;
+const errors = {
+  byField: {
+    name: 'Ошибка в поле Name.',
+    about: 'Ошибка в поле About.',
+  },
+  byDocType: {
+    user: 'Такого пользователя нет',
+    card: 'Карточка не существует',
+  },
+};
 
 function makeErrorMessagesPerField(fieldErrorMap, actualError) {
   const expectedBadFields = Object.keys(fieldErrorMap);
@@ -15,59 +24,62 @@ function makeErrorMessagesPerField(fieldErrorMap, actualError) {
   }
   return consolidatedMessage;
 }
+const sendError = {
+  noDoc: (res, doc) => {
+    res.status(404).send({ message: `${errors.byDocType[doc]}` });
+  },
+  server: (res, err) => {
+    res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+  },
+  invalidData: (res, err) => {
+    res.status(400).send({ message: makeErrorMessagesPerField(errors.byField, err) });
+  },
+};
 
-function controllerPromiseHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` }));
+const check = {
+  responseObj: (respObj) => respObj === null, // check.responseObj(respObj)
+  errorObj: (errorType) => errorType === 'ObjectId', // check.errorObj(err.kind)
+};
+
+function sendDBObject(res, respObj) {
+  res.send({ data: respObj });
 }
 
-function userControllerPromiseHandler(promise, req, res) {
+function controllerPromiseHandler(promise, res, docType) {
   promise
-    .then((user) => {
-      if (user === null) {
-        res.status(404).send({ message: 'Такого пользователя нет' });
-      } else {
-        res.send({ data: user });
-      }
-    })
+  .then((respObj) => {
+    if (check.responseObj(respObj)) {
+      sendError.noDoc(res, docType);
+    } else {
+      sendDBObject(res, respObj);
+    }
+  })
+    .catch(
+
+    );
+}
+
+
+
+
+    .catch((err) => sendError.server(res, err));
+
     .catch((err) => {
-      // res.status(500).send(err);
-      // console.log('typeof err', typeof err);
-      if (err.kind === 'ObjectId') {
-        res.status(404).send({ message: 'Такого пользователя нет' });
+      if (check.errorObj(err.kind)) {
+        sendError.noDoc(res, docType);
       } else {
-        const fieldErrorMap = {
-          name: 'Ошибка в поле Name.',
-          about: 'Ошибка в поле About.',
-        };
-        res.status(400).send({ message: makeErrorMessagesPerField(fieldErrorMap, err) });
+        sendError.invalidData(res, err);
       }
     });
-}
 
-function cardControllerPromiseHandler(promise, req, res) {
-  promise
-    .then((card) => {
-      if (card === null) {
-        res.status(404).send({ message: 'Карточка не существует' });
-      } else {
-        res.send({ data: card });
-      }
-    })
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        res.status(404).send({ message: 'Карточка не существует' });
+      if (check.errorObj(err.kind)) {
+        sendError.noDoc(res, docType);
       } else {
-        res.status(500).send({ message: `Ошибка! ${err.message}` });
+        sendError.server(res, err);
       }
     });
-}
 
 module.exports = {
-  urlRegex,
   controllerPromiseHandler,
-  userControllerPromiseHandler,
-  cardControllerPromiseHandler,
-  makeErrorMessagesPerField,
 };
