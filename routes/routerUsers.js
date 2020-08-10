@@ -1,6 +1,6 @@
 /* ИМПОРТ */
 const routerUsers = require('express').Router();
-// const bodyParser = require('body-parser');
+
 const {
   createUser,
   getAllUsers,
@@ -8,8 +8,6 @@ const {
   updateProfile,
   updateAvatar,
 } = require('../controllers/users');
-
-// const bodyParserJson = bodyParser.json({ type: 'application/json' });
 
 /* РУТЕРЫ */
 routerUsers.get('/', getAllUsers);
@@ -20,8 +18,6 @@ routerUsers.patch('/me', updateProfile);
 
 routerUsers.patch('/me/avatar', updateAvatar);
 
-// routerUsers.post('/', bodyParser.json({ type: 'application/json' }), createUser);
-// routerUsers.post('/', bodyParserJson, createUser);
 routerUsers.post('/', createUser);
 
 /* ЭКСПОРТ */
