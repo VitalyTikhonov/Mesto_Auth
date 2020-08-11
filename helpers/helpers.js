@@ -33,10 +33,6 @@ const configMap = {
   },
   send: {
     DBObject: ({ res, respObj }) => { res.send({ data: respObj }); },
-    // DBObject: ({ res, respObj }) => {
-    // res.send({ data: respObj });
-    // console.log('res', res);
-    // },
     error: {
       noDoc: ({ res, doc }) => {
         res.status(404).send({ message: `${errors.byDocType[doc]}` });
@@ -45,78 +41,38 @@ const configMap = {
         res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
       },
       invalidData: ({ res, err }) => {
-        // console.log('err', err);
-        // console.log('typeof err', typeof err);
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
       },
     },
   },
 };
-
-// function configMapSendDBObject() { }
-
 /*
-const config = {
-  arguments: {},
-  then: {
-    check: configMap.check.no,
-    ifTrue: configMap.send.DBObject,
-  },
-  catch: {
-    check: configMap.check.no,
-    ifTrue: configMap.send.error.invalidData,
-  },
-};
-*/
-/*
-const config = {
-  arguments: {},
-  then: {
-    check: configMap.,
-    ifTrue: configMap.,
-    ifFalse: configMap.,
-  },
-  catch: {
-    check: configMap.,
-    ifTrue: configMap.,
-    ifFalse: configMap.,
-  },
-};
+configMap.check.no(checkable)
+configMap.check.respObj(respObj)
+configMap.check.errObj(errorType)
+configMap.send.DBObject(res, respObj)
+configMap.send.error.noDoc(res, doc)
+configMap.send.error.server(res, err)
+configMap.send.error.invalidData(res, err)
  */
-
-const createUserConfig = {
-  arguments: {},
-  then: {
-    check: configMap.check.no,
-    ifTrue: configMap.send.DBObject,
-  },
-  catch: {
-    check: configMap.check.no,
-    ifTrue: configMap.send.error.invalidData,
-  },
-};
-
-function controllerPromiseHandler(promise, req, res, options) {
+function createUserHandler(promise, req, res) {
   promise
     .then((respObj) => {
-      if (options.then.check(respObj)) {
-        options.then.ifTrue({ res, respObj, ...options.arguments });
+      if ( (respObj)) {
+        then.ifTrue({ res, respObj, ...arguments });
       } else {
-        options.then.ifFalse(options.arguments);
+        then.ifFalse(arguments);
       }
     })
     .catch((err) => {
-      // console.log('err', err);
-      if (options.catch.check(err)) {
-        // console.log('{ res, err, ...options.arguments }', { res, err, ...options.arguments });
-        options.catch.ifTrue({ res, err, ...options.arguments });
+      if (catch.check(err)) {
+        catch.ifTrue({ res, err, ...arguments });
       } else {
-        options.catch.ifFalse({ res, err, ...options.arguments });
+        catch.ifFalse({ res, err, ...arguments });
       }
     });
 }
 
 module.exports = {
-  controllerPromiseHandler,
-  createUserConfig,
+  createUserHandler,
 };

@@ -1,9 +1,9 @@
 const User = require('../models/user');
-const { controllerPromiseHandler, createUserConfig } = require('../helpers/helpers');
+const { createUserHandler } = require('../helpers/helpers');
 
 function createUser(req, res) {
   const { name, about, avatar } = req.body;
-  controllerPromiseHandler(User.create({ name, about, avatar }), req, res, createUserConfig);
+  createUserHandler(User.create({ name, about, avatar }), req, res);
 }
 
 function getAllUsers(req, res) {
