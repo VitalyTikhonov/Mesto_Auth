@@ -1,20 +1,9 @@
 const User = require('../models/user');
-const { controllerPromiseHandler } = require('../helpers/helpers');
+const { controllerPromiseHandler, createUserConfig } = require('../helpers/helpers');
 
 function createUser(req, res) {
-  const config = {
-    arguments: {},
-    then: {
-      check: 'configMap.check.no',
-      ifTrue: 'configMap.send.DBObject',
-    },
-    catch: {
-      check: 'configMap.check.no',
-      ifTrue: 'configMap.send.error.invalidData',
-    },
-  };
   const { name, about, avatar } = req.body;
-  controllerPromiseHandler(User.create({ name, about, avatar }), req, res, config);
+  controllerPromiseHandler(User.create({ name, about, avatar }), req, res, createUserConfig);
 }
 
 function getAllUsers(req, res) {
