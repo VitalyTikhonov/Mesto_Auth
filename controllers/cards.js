@@ -1,5 +1,5 @@
 const Card = require('../models/card');
-const { controllerPromiseHandler, cardControllerPromiseHandler, makeErrorMessagesPerField } = require('../helpers/helpers');
+const { controllerPromiseHandler } = require('../helpers/helpers');
 
 function getAllCards(req, res) {
   controllerPromiseHandler(Card.find({}), req, res);
@@ -23,12 +23,12 @@ function createCard(req, res) {
         name: 'Недопустимое название места.',
         link: 'Проблема со ссылкой на изображение.',
       };
-      res.status(400).send({ message: makeErrorMessagesPerField(fieldErrorMap, err) });
+      res.status(400).send({ message: 'makeErrorMessagesPerField'(fieldErrorMap, err) });
     });
 }
 
 function likeCard(req, res) {
-  cardControllerPromiseHandler(Card.findByIdAndUpdate(
+  controllerPromiseHandler(Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
@@ -36,7 +36,7 @@ function likeCard(req, res) {
 }
 
 function dislikeCard(req, res) {
-  cardControllerPromiseHandler(Card.findByIdAndUpdate(
+  controllerPromiseHandler(Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },

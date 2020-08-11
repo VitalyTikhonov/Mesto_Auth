@@ -1,30 +1,5 @@
-const config = {
-  check: {
-    respObj: (respObj) => respObj === null, // check.responseObj(respObj),
-    errObj: (errorType) => errorType === 'ObjectId', // check.errorObj(err.kind)
-  },
-  send: {
-    DBObject: (res, respObj) => { res.send({ data: respObj }) },
-    error: {
-      noDoc: (res, doc) => {
-        res.status(404).send({ message: `${errors.byDocType[doc]}` });
-      },
-      server: (res, err) => {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      },
-      invalidData: (res, err) => {
-        res.status(400).send({ message: makeErrorMessagesPerField(errors.byField, err) });
-      },
-      // invalidData: {
-      //   errors: {
-      //     byField: { name, about },
-      //     byDocType: { user, card },
-      //   }
-      // },
-    },
-  }
-}
-
+/* eslint-disable no-new-func */
+/* eslint-disable no-new */
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
@@ -51,62 +26,75 @@ function makeErrorMessagesPerField(fieldErrorMap, actualError) {
   }
   return consolidatedMessage;
 }
-const send = {
-  error: {
-    noDoc: (res, doc) => {
-      res.status(404).send({ message: `${errors.byDocType[doc]}` });
-    },
-    server: (res, err) => {
-      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-    },
-    invalidData: (res, err) => {
-      res.status(400).send({ message: makeErrorMessagesPerField(errors.byField, err) });
+
+const configMap = {
+  check: {
+    no: (checkable) => checkable, // нужно просто true
+    respObj: (respObj) => respObj === null, // check.responseObj(respObj),
+    errObj: (errorType) => errorType === 'ObjectId', // check.errorObj(err.kind)
+  },
+  send: {
+    DBObject: ({ res, respObj }) => { res.send({ data: respObj }); },
+    error: {
+      noDoc: ({ res, doc }) => {
+        res.status(404).send({ message: `${errors.byDocType[doc]}` });
+      },
+      server: ({ res, err }) => {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      },
+      invalidData: ({ res, err }) => {
+        res.status(400).send({ message: makeErrorMessagesPerField(errors.byField, err) });
+      },
     },
   },
-  DBObject: (res, respObj) => {
-    res.send({ data: respObj });
-  }
 };
 
-const check = {
-  responseObj: (respObj) => respObj === null, // check.responseObj(respObj)
-  errorObj: (errorType) => errorType === 'ObjectId', // check.errorObj(err.kind)
+/*
+const config = {
+  arguments: {},
+  then: {
+    check: configMap.check.no,
+    ifTrue: configMap.send.DBObject,
+  },
+  catch: {
+    check: configMap.check.no,
+    ifTrue: configMap.send.error.invalidData,
+  },
 };
+*/
+/*
+const config = {
+  arguments: {},
+  then: {
+    check: configMap.,
+    ifTrue: configMap.,
+    ifFalse: configMap.,
+  },
+  catch: {
+    check: configMap.,
+    ifTrue: configMap.,
+    ifFalse: configMap.,
+  },
+};
+ */
 
-function controllerPromiseHandler(promise, res, docType) {
+function controllerPromiseHandler(promise, req, res, options) {
   promise
-    .then((respObj) => {
-      if (check.responseObj(respObj)) {
-        send.error.noDoc(res, docType);
+    .then((responseObject) => {
+      if (new Function(responseObject, options.then.check)) {
+        new Function(options.arguments, options.then.ifTrue);
       } else {
-        sendDBObject(res, respObj);
+        new Function(options.arguments, options.then.ifFalse);
       }
     })
-    .catch(
-
-    );
+    .catch((err) => {
+      if (new Function('err', options.catch.check)) {
+        new Function('options.catch.ifTrue({ res, err, ...options.arguments })');
+      } else {
+        new Function({ res, err, ...options.arguments }, options.catch.ifFalse);
+      }
+    });
 }
-
-
-
-
-    .catch ((err) => send.error.server(res, err));
-
-    .catch ((err) => {
-  if (check.errorObj(err.kind)) {
-    send.error.noDoc(res, docType);
-  } else {
-    send.error.invalidData(res, err);
-  }
-});
-
-    .catch ((err) => {
-  if (check.errorObj(err.kind)) {
-    send.error.noDoc(res, docType);
-  } else {
-    send.error.server(res, err);
-  }
-});
 
 module.exports = {
   controllerPromiseHandler,

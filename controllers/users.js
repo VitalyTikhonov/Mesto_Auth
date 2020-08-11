@@ -1,18 +1,20 @@
 const User = require('../models/user');
-const { controllerPromiseHandler, userControllerPromiseHandler, makeErrorMessagesPerField } = require('../helpers/helpers');
+const { controllerPromiseHandler } = require('../helpers/helpers');
 
 function createUser(req, res) {
+  const config = {
+    arguments: {},
+    then: {
+      check: 'configMap.check.no',
+      ifTrue: 'configMap.send.DBObject',
+    },
+    catch: {
+      check: 'configMap.check.no',
+      ifTrue: 'configMap.send.error.invalidData',
+    },
+  };
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      const fieldErrorMap = {
-        name: 'Ошибка в поле Name.',
-        about: 'Ошибка в поле About.',
-        avatar: 'Проблема с аватаркой.',
-      };
-      res.status(400).send({ message: makeErrorMessagesPerField(fieldErrorMap, err) });
-    });
+  controllerPromiseHandler(User.create({ name, about, avatar }), req, res, config);
 }
 
 function getAllUsers(req, res) {
@@ -20,12 +22,12 @@ function getAllUsers(req, res) {
 }
 
 function getSingleUser(req, res) {
-  userControllerPromiseHandler(User.findById(req.params.id), req, res);
+  controllerPromiseHandler(User.findById(req.params.id), req, res);
 }
 
 function updateProfile(req, res) {
   const { name, about } = req.body;
-  userControllerPromiseHandler(User.findByIdAndUpdate(
+  controllerPromiseHandler(User.findByIdAndUpdate(
     req.user._id,
     { name, about },
     {
@@ -38,7 +40,7 @@ function updateProfile(req, res) {
 
 function updateAvatar(req, res) {
   const { avatar } = req.body;
-  userControllerPromiseHandler(User.findByIdAndUpdate(
+  controllerPromiseHandler(User.findByIdAndUpdate(
     req.user._id,
     { avatar },
     {
