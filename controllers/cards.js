@@ -1,11 +1,8 @@
 const Card = require('../models/card');
-const { controllerPromiseHandler } = require('../helpers/helpers');
+const { getAllCardsHandler, createCardHandler, likeCardHandler, unLikeCardHandler, isUserExistent } = require('../helpers/helpers');
 
 function getAllCards(req, res) {
-  controllerPromiseHandler(Card.find({}), req, res);
-  // Card.find({})
-  //   .then((users) => res.send({ data: users }))
-  //   .catch(() => res.status(500).send(err));
+  getAllCardsHandler(Card.find({}), req, res);
 }
 
 /*
@@ -16,27 +13,24 @@ const User = require('../models/user');
 function createCard(req, res) {
   const { name, link } = req.body;
   const owner = req.user._id;
-  Card.create({ name, link, owner })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      const fieldErrorMap = {
-        name: 'Недопустимое название места.',
-        link: 'Проблема со ссылкой на изображение.',
-      };
-      res.status(400).send({ message: 'makeErrorMessagesPerField'(fieldErrorMap, err) });
-    });
+  createCardHandler(Card.create({ name, link, owner }), req, res);
+  // User.exists({ _id: owner })
+  //   .then(() => createCardHandler(Card.create({ name, link, owner }), req, res))
+  //   .catch(() => );
 }
 
+/* Существование пользователя не проверяется */
 function likeCard(req, res) {
-  controllerPromiseHandler(Card.findByIdAndUpdate(
+  likeCardHandler(Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ), req, res);
 }
 
+/* Существование пользователя не проверяется */
 function dislikeCard(req, res) {
-  controllerPromiseHandler(Card.findByIdAndUpdate(
+  unLikeCardHandler(Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },

@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
+const User = require('../models/user');
 
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
     about: 'Ошибка в поле About.',
     avatar: 'Проблема с аватаркой.',
+    link: 'Проблема с изображением.',
   },
   byDocType: {
     user: 'Такого пользователя нет',
@@ -28,39 +30,9 @@ function joinErrorMessages(fieldErrorMap, actualError) {
   return jointErrorMessage;
 }
 
-/*
-const configMap = {
-  check: {
-    no: (checkable) => checkable, // нужно просто true
-    // configMap.check.no(checkable)
-    .orFail((doc) => {
-      res.status(404).send({ message: `${errors.byDocType[doc]}` });
-    })
-    errObj: (errorType) => errorType === 'ObjectId', // err.kind === 'ObjectId'
-    // configMap.check.errObj(errorType)
-  },
-  send: {
-    DBObject: (respObj) => { res.send({ data: respObj }); },
-    // configMap.send.DBObject(respObj)
-    error: {
-      noDoc: (doc) => {
-        res.status(404).send({ message: `${errors.byDocType[doc]}` });
-      },
-      // configMap.send.error.noDoc(doc)
-      server: (err) => {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      },
-      // configMap.send.error.server(err)
-      invalidData: (err) => {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      },
-      // configMap.send.error.invalidData(err)
-    },
-  },
-};
-
-res.status(400).send(err); // dev
-*/
+function isUserExistent(id) {
+  User.exists({ _id: id });
+}
 
 function createUserHandler(promise, req, res) {
   promise
@@ -122,10 +94,57 @@ function updateAvatarHandler(promise, req, res) {
     });
 }
 
+function getAllCardsHandler(promise, req, res) {
+  promise
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+    });
+}
+
+function createCardHandler(promise, req, res) {
+  promise
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+    });
+}
+
+function likeCardHandler(promise, req, res) {
+  promise
+    .orFail()
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: `${errors.byDocType.card}` });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
+}
+
+function unLikeCardHandler(promise, req, res) {
+  promise
+    .orFail()
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: `${errors.byDocType.card}` });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
+}
+
 module.exports = {
   createUserHandler,
   getAllUsersHandler,
   getSingleUserHandler,
   updateProfileHandler,
   updateAvatarHandler,
+  getAllCardsHandler,
+  createCardHandler,
+  likeCardHandler,
+  unLikeCardHandler,
+  isUserExistent,
 };
