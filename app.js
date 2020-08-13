@@ -15,7 +15,9 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`Сервер запущен, порт: ${PORT}.`);
+});
 app.use((req, res, next) => {
   req.user = {
     _id: '5f305eff48dca67ac55c19c1',

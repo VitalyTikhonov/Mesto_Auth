@@ -1,5 +1,11 @@
 const User = require('../models/user');
-const { createUserHandler } = require('../helpers/helpers');
+const {
+  createUserHandler,
+  getAllUsersHandler,
+  getSingleUserHandler,
+  updateProfileHandler,
+  updateAvatarHandler,
+} = require('../helpers/helpers');
 
 function createUser(req, res) {
   const { name, about, avatar } = req.body;
@@ -7,16 +13,16 @@ function createUser(req, res) {
 }
 
 function getAllUsers(req, res) {
-  controllerPromiseHandler(User.find({}), req, res);
+  getAllUsersHandler(User.find({}), req, res);
 }
 
 function getSingleUser(req, res) {
-  controllerPromiseHandler(User.findById(req.params.id), req, res);
+  getSingleUserHandler(User.findById(req.params.id), req, res);
 }
 
 function updateProfile(req, res) {
   const { name, about } = req.body;
-  controllerPromiseHandler(User.findByIdAndUpdate(
+  updateProfileHandler(User.findByIdAndUpdate(
     req.user._id,
     { name, about },
     {
@@ -29,7 +35,7 @@ function updateProfile(req, res) {
 
 function updateAvatar(req, res) {
   const { avatar } = req.body;
-  controllerPromiseHandler(User.findByIdAndUpdate(
+  updateAvatarHandler(User.findByIdAndUpdate(
     req.user._id,
     { avatar },
     {
