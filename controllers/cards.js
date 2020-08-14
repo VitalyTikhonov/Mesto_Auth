@@ -1,45 +1,83 @@
 const Card = require('../models/card');
-const { getAllCardsHandler, createCardHandler, likeCardHandler, unLikeCardHandler, isUserExistent } = require('../helpers/helpers');
+const {
+  errors,
+  getAllCardsHandler,
+  createCardHandler,
+  deleteCardHandler,
+  likeCardHandler,
+  unLikeCardHandler,
+  isUserExistent,
+} = require('../helpers/helpers');
 
 function getAllCards(req, res) {
   getAllCardsHandler(Card.find({}), req, res);
 }
 
-/*
-const User = require('../models/user');
-Существование пользователя не проверяется, что очень странно. В первом приближении
-реализовать не удалось: User.exist не возвращал ожидаемый отриц. результат.
-*/
 function createCard(req, res) {
   const { name, link } = req.body;
-  const owner = req.user._id;
-  createCardHandler(Card.create({ name, link, owner }), req, res);
-  // User.exists({ _id: owner })
-  //   .then(() => createCardHandler(Card.create({ name, link, owner }), req, res))
-  //   .catch(() => );
+  const user = req.user._id;
+  isUserExistent(user)
+    .then((checkResult) => {
+      if (checkResult) {
+        createCardHandler(Card.create({ name, link, user }), req, res);
+      } else {
+        throw new Error();
+      }
+    })
+    .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
 }
 
-/* Существование пользователя не проверяется */
+function deleteCard(req, res) {
+  const user = req.user._id;
+  isUserExistent(user)
+    .then((checkResult) => {
+      if (checkResult) {
+        deleteCardHandler(Card.findByIdAndRemove(req.params.cardId), req, res);
+      } else {
+        throw new Error();
+      }
+    })
+    .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+}
+
 function likeCard(req, res) {
-  likeCardHandler(Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  ), req, res);
+  const user = req.user._id;
+  isUserExistent(user)
+    .then((checkResult) => {
+      if (checkResult) {
+        likeCardHandler(Card.findByIdAndUpdate(
+          req.params.cardId,
+          { $addToSet: { likes: user } },
+          { new: true },
+        ), req, res);
+      } else {
+        throw new Error();
+      }
+    })
+    .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
 }
 
-/* Существование пользователя не проверяется */
 function dislikeCard(req, res) {
-  unLikeCardHandler(Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  ), req, res);
+  const user = req.user._id;
+  isUserExistent(user)
+    .then((checkResult) => {
+      if (checkResult) {
+        unLikeCardHandler(Card.findByIdAndUpdate(
+          req.params.cardId,
+          { $pull: { likes: user } },
+          { new: true },
+        ), req, res);
+      } else {
+        throw new Error();
+      }
+    })
+    .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
 }
 
 module.exports = {
   getAllCards,
   createCard,
+  deleteCard,
   likeCard,
   dislikeCard,
 };

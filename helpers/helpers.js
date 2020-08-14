@@ -31,14 +31,18 @@ function joinErrorMessages(fieldErrorMap, actualError) {
 }
 
 function isUserExistent(id) {
-  User.exists({ _id: id });
+  return User.exists({ _id: id });
 }
 
 function createUserHandler(promise, req, res) {
   promise
     .then((respObj) => res.send({ data: respObj }))
     .catch((err) => {
-      res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
     });
 }
 
@@ -85,8 +89,7 @@ function updateAvatarHandler(promise, req, res) {
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: `${errors.byDocType.user}` });
-      } else if (err instanceof mongoose.Error.ValidationError && err.errors.avatar) {
-        /* проверка – конкретно для аватарки */
+      } else if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
       } else {
         res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
@@ -106,7 +109,19 @@ function createCardHandler(promise, req, res) {
   promise
     .then((respObj) => res.send({ data: respObj }))
     .catch((err) => {
-      res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
+}
+
+function deleteCardHandler(promise, req, res) {
+  promise
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
     });
 }
 
@@ -137,6 +152,7 @@ function unLikeCardHandler(promise, req, res) {
 }
 
 module.exports = {
+  errors,
   createUserHandler,
   getAllUsersHandler,
   getSingleUserHandler,
@@ -144,6 +160,7 @@ module.exports = {
   updateAvatarHandler,
   getAllCardsHandler,
   createCardHandler,
+  deleteCardHandler,
   likeCardHandler,
   unLikeCardHandler,
   isUserExistent,
