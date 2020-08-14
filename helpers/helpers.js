@@ -12,6 +12,10 @@ const errors = {
     user: 'Такого пользователя нет',
     card: 'Карточка не существует',
   },
+  objectId: {
+    user: 'Ошибка в идентификаторе пользователя',
+    card: 'Ошибка в идентификаторе карточки',
+  },
 };
 
 function joinErrorMessages(fieldErrorMap, actualError) {
@@ -34,6 +38,14 @@ function isUserExistent(id) {
   return User.exists({ _id: id });
 }
 
+function isObjectIdValid(id, docType) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const error = new Error();
+    error.docType = docType;
+    throw error;
+  }
+}
+
 function createDocHandler(promise, req, res) {
   promise
     .then((respObj) => res.send({ data: respObj }))
@@ -46,7 +58,7 @@ function createDocHandler(promise, req, res) {
     });
 }
 
-function getAllOrDeleteHandler(promise, req, res) {
+function getAllDocsHandler(promise, req, res) {
   promise
     .then((respObj) => res.send({ data: respObj }))
     .catch((err) => {
@@ -54,7 +66,7 @@ function getAllOrDeleteHandler(promise, req, res) {
     });
 }
 
-function getUserOrLikesHandler(promise, req, res, docType) {
+function getLikeDeleteHandler(promise, req, res, docType) {
   promise
     .orFail()
     .then((respObj) => res.send({ data: respObj }))
@@ -82,138 +94,12 @@ function updateHandler(promise, req, res) {
     });
 }
 
-/* createDocHandler */
-function createUserHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* getAllOrDeleteHandler */
-function getAllUsersHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-    });
-}
-
-/* getUserOrLikesHandler */
-function getSingleUserHandler(promise, req, res) {
-  promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.user}` });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* updateHandler */
-function updateProfileHandler(promise, req, res) {
-  promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.user}` });
-      } else if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* updateHandler */
-function updateAvatarHandler(promise, req, res) {
-  promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.user}` });
-      } else if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* getAllOrDeleteHandler */
-function getAllCardsHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-    });
-}
-
-/* createDocHandler */
-function createCardHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* getAllOrDeleteHandler */
-function deleteCardHandler(promise, req, res) {
-  promise
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-    });
-}
-
-/* getUserOrLikesHandler */
-function likeCardHandler(promise, req, res) {
-  promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.card}` });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
-/* getUserOrLikesHandler */
-function unLikeCardHandler(promise, req, res) {
-  promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.card}` });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-      }
-    });
-}
-
 module.exports = {
   createDocHandler,
-  getAllOrDeleteHandler,
-  getUserOrLikesHandler,
+  getAllDocsHandler,
+  getLikeDeleteHandler,
   updateHandler,
   errors,
   isUserExistent,
+  isObjectIdValid,
 };

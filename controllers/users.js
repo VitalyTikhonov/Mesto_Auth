@@ -1,9 +1,11 @@
 const User = require('../models/user');
 const {
   createDocHandler,
-  getAllOrDeleteHandler,
-  getUserOrLikesHandler,
+  getAllDocsHandler,
+  getLikeDeleteHandler,
   updateHandler,
+  errors,
+  isObjectIdValid,
 } = require('../helpers/helpers');
 
 function createUser(req, res) {
@@ -12,37 +14,55 @@ function createUser(req, res) {
 }
 
 function getAllUsers(req, res) {
-  getAllOrDeleteHandler(User.find({}), req, res);
+  getAllDocsHandler(User.find({}), req, res);
 }
 
 function getSingleUser(req, res) {
-  getUserOrLikesHandler(User.findById(req.params.id), req, res, 'user');
+  try {
+    const userId = req.params.id;
+    isObjectIdValid(userId, 'user');
+    getLikeDeleteHandler(User.findById(userId), req, res, 'user');
+  } catch (err) {
+    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+  }
 }
 
 function updateProfile(req, res) {
-  const { name, about } = req.body;
-  updateHandler(User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    {
-      new: true,
-      runValidators: true,
-      upsert: false,
-    },
-  ), req, res);
+  try {
+    const userId = req.user._id;
+    isObjectIdValid(userId, 'user');
+    const { name, about } = req.body;
+    updateHandler(User.findByIdAndUpdate(
+      userId,
+      { name, about },
+      {
+        new: true,
+        runValidators: true,
+        upsert: false,
+      },
+    ), req, res);
+  } catch (err) {
+    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+  }
 }
 
 function updateAvatar(req, res) {
-  const { avatar } = req.body;
-  updateHandler(User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    {
-      new: true,
-      runValidators: true,
-      upsert: true,
-    },
-  ), req, res);
+  try {
+    const userId = req.user._id;
+    isObjectIdValid(userId, 'user');
+    const { avatar } = req.body;
+    updateHandler(User.findByIdAndUpdate(
+      userId,
+      { avatar },
+      {
+        new: true,
+        runValidators: true,
+        upsert: true,
+      },
+    ), req, res);
+  } catch (err) {
+    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+  }
 }
 
 module.exports = {
