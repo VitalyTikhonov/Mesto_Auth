@@ -1,16 +1,14 @@
 const Card = require('../models/card');
 const {
+  createDocHandler,
+  getAllOrDeleteHandler,
+  getUserOrLikesHandler,
   errors,
-  getAllCardsHandler,
-  createCardHandler,
-  deleteCardHandler,
-  likeCardHandler,
-  unLikeCardHandler,
   isUserExistent,
 } = require('../helpers/helpers');
 
 function getAllCards(req, res) {
-  getAllCardsHandler(Card.find({}), req, res);
+  getAllOrDeleteHandler(Card.find({}), req, res);
 }
 
 function createCard(req, res) {
@@ -19,7 +17,7 @@ function createCard(req, res) {
   isUserExistent(user)
     .then((checkResult) => {
       if (checkResult) {
-        createCardHandler(Card.create({ name, link, user }), req, res);
+        createDocHandler(Card.create({ name, link, user }), req, res);
       } else {
         throw new Error();
       }
@@ -32,7 +30,7 @@ function deleteCard(req, res) {
   isUserExistent(user)
     .then((checkResult) => {
       if (checkResult) {
-        deleteCardHandler(Card.findByIdAndRemove(req.params.cardId), req, res);
+        getAllOrDeleteHandler(Card.findByIdAndRemove(req.params.cardId), req, res);
       } else {
         throw new Error();
       }
@@ -45,11 +43,11 @@ function likeCard(req, res) {
   isUserExistent(user)
     .then((checkResult) => {
       if (checkResult) {
-        likeCardHandler(Card.findByIdAndUpdate(
+        getUserOrLikesHandler(Card.findByIdAndUpdate(
           req.params.cardId,
           { $addToSet: { likes: user } },
           { new: true },
-        ), req, res);
+        ), req, res, 'card');
       } else {
         throw new Error();
       }
@@ -57,16 +55,16 @@ function likeCard(req, res) {
     .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
 }
 
-function dislikeCard(req, res) {
+function unlikeCard(req, res) {
   const user = req.user._id;
   isUserExistent(user)
     .then((checkResult) => {
       if (checkResult) {
-        unLikeCardHandler(Card.findByIdAndUpdate(
+        getUserOrLikesHandler(Card.findByIdAndUpdate(
           req.params.cardId,
           { $pull: { likes: user } },
           { new: true },
-        ), req, res);
+        ), req, res, 'card');
       } else {
         throw new Error();
       }
@@ -79,5 +77,5 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard,
+  unlikeCard,
 };

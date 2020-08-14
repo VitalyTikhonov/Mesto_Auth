@@ -5,7 +5,7 @@ const {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard,
+  unlikeCard,
 } = require('../controllers/cards');
 
 /* РУТЕРЫ */
@@ -17,7 +17,7 @@ routerCards.delete('/:cardId', deleteCard);
 
 routerCards.put('/:cardId/likes', likeCard);
 
-routerCards.delete('/:cardId/likes', dislikeCard);
+routerCards.delete('/:cardId/likes', unlikeCard);
 
 /* ЭКСПОРТ */
 module.exports = routerCards;

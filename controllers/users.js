@@ -1,28 +1,27 @@
 const User = require('../models/user');
 const {
-  createUserHandler,
-  getAllUsersHandler,
-  getSingleUserHandler,
-  updateProfileHandler,
-  updateAvatarHandler,
+  createDocHandler,
+  getAllOrDeleteHandler,
+  getUserOrLikesHandler,
+  updateHandler,
 } = require('../helpers/helpers');
 
 function createUser(req, res) {
   const { name, about, avatar } = req.body;
-  createUserHandler(User.create({ name, about, avatar }), req, res);
+  createDocHandler(User.create({ name, about, avatar }), req, res);
 }
 
 function getAllUsers(req, res) {
-  getAllUsersHandler(User.find({}), req, res);
+  getAllOrDeleteHandler(User.find({}), req, res);
 }
 
 function getSingleUser(req, res) {
-  getSingleUserHandler(User.findById(req.params.id), req, res);
+  getUserOrLikesHandler(User.findById(req.params.id), req, res, 'user');
 }
 
 function updateProfile(req, res) {
   const { name, about } = req.body;
-  updateProfileHandler(User.findByIdAndUpdate(
+  updateHandler(User.findByIdAndUpdate(
     req.user._id,
     { name, about },
     {
@@ -35,7 +34,7 @@ function updateProfile(req, res) {
 
 function updateAvatar(req, res) {
   const { avatar } = req.body;
-  updateAvatarHandler(User.findByIdAndUpdate(
+  updateHandler(User.findByIdAndUpdate(
     req.user._id,
     { avatar },
     {
