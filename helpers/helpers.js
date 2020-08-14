@@ -68,8 +68,15 @@ function getAllDocsHandler(promise, req, res) {
 
 function getLikeDeleteHandler(promise, req, res, docType) {
   promise
-    .orFail()
-    .then((respObj) => res.send({ data: respObj }))
+    // .orFail() не работает, похоже на баг:
+    // https://github.com/Automattic/mongoose/issues/7280
+    .then((respObj) => {
+      if (respObj === null) {
+        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+      } else {
+        res.send({ data: respObj });
+      }
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: `${errors.byDocType[docType]}` });

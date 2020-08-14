@@ -38,7 +38,7 @@ function updateProfile(req, res) {
       {
         new: true,
         runValidators: true,
-        upsert: false,
+        upsert: false, // !!!!!!!!!!!!!
       },
     ), req, res);
   } catch (err) {
@@ -57,7 +57,7 @@ function updateAvatar(req, res) {
       {
         new: true,
         runValidators: true,
-        upsert: true,
+        upsert: false, // !!!!!!!!!!!!!
       },
     ), req, res);
   } catch (err) {
