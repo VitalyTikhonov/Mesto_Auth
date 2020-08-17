@@ -31,19 +31,8 @@ function createCard(req, res) {
   }
 }
 
-/*
-Проверка права на удаление
-    Попытался реализовать, но код получался очень сложным, и я отказался от этой идеи.
-    Полагаю, в реале при наличии фронтенда, скорее всего,
-    не придется для этого реализовывать лишний запрос к базе. Запрос DELETE /cards/:cardid будет
-    отправляться не просто по переходу на УРЛ, а по нажатию кнопки, то есть с уже имеющейся
-    страницы, а значит ещё при ее загрузке будет определен и сохранен айди владельца
-    карточки.
-*/
 function deleteCard(req, res) {
   try {
-    /*  Так-то эта проверка (isObjectIdValid(userId, 'user');) не нужна в условиях отсутствия
-    проверки прав. Но пусть будет для единообразия. */
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
 
@@ -52,7 +41,7 @@ function deleteCard(req, res) {
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
-          getLikeDeleteHandler(Card.findByIdAndRemove(cardId), req, res, 'card'); // findOneAndRemove??
+          getLikeDeleteHandler(Card.findByIdAndRemove(cardId), req, res, 'card');
         } else {
           throw new Error();
         }
