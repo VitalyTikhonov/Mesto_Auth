@@ -29,9 +29,6 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
-app.listen(PORT, () => {
-  console.log(`Сервер запущен, порт: ${PORT}.`);
-});
 app.use((req, res, next) => {
   req.user = {
     // _id: '5f305eff48dca67ac55c19c2', // нет
@@ -44,4 +41,7 @@ app.use('/cards', routerCards);
 app.use('/users', routerUsers);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+});
+app.listen(PORT, () => {
+  console.log(`Сервер запущен, порт: ${PORT}.`);
 });
