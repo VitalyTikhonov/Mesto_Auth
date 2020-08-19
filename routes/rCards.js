@@ -6,7 +6,7 @@ const {
   deleteCard,
   likeCard,
   unlikeCard,
-} = require('../controllers/cards');
+} = require('../controllers/ctCards');
 
 /* РУТЕРЫ */
 routerCards.get('/', getAllCards);

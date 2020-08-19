@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
   createDocHandler,
@@ -9,8 +11,37 @@ const {
 } = require('../helpers/helpers');
 
 function createUser(req, res) {
-  const { name, about, avatar } = req.body;
-  createDocHandler(User.create({ name, about, avatar }), req, res);
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      createDocHandler(User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }), req, res);
+    });
+}
+
+function login(req, res) {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key');
+      res.send({ token });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
+    });
 }
 
 function getAllUsers(req, res) {
@@ -67,6 +98,7 @@ function updateAvatar(req, res) {
 
 module.exports = {
   createUser,
+  login,
   getAllUsers,
   getSingleUser,
   updateProfile,
