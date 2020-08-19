@@ -1,13 +1,23 @@
-/* eslint-disable no-underscore-dangle */
 /* ИМПОРТ */
 const routerCards = require('express').Router();
-
-const { sendWholeJson } = require('../helpers/helpers.js');
+const {
+  getAllCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  unlikeCard,
+} = require('../controllers/cards');
 
 /* РУТЕРЫ */
-routerCards.get('/cards', (req, res) => {
-  sendWholeJson('cards.json', res);
-});
+routerCards.get('/', getAllCards);
+
+routerCards.post('/', createCard);
+
+routerCards.delete('/:cardId', deleteCard);
+
+routerCards.put('/:cardId/likes', likeCard);
+
+routerCards.delete('/:cardId/likes', unlikeCard);
 
 /* ЭКСПОРТ */
 module.exports = routerCards;

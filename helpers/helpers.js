@@ -1,25 +1,112 @@
-const path = require('path');
-const fs = require('fs');
+const mongoose = require('mongoose');
+const User = require('../models/user');
 
-function readFileAsset(fileName, res) {
-  const readStream = fs.createReadStream(path.join(__dirname, '../data', fileName), { encoding: 'utf8' });
-  readStream.on('error', () => {
-    res.status(500).json({ error: 'На сервере произошла ошибка' });
-  });
-  return readStream;
+const errors = {
+  byField: {
+    name: 'Ошибка в поле Name.',
+    about: 'Ошибка в поле About.',
+    avatar: 'Проблема с аватаркой.',
+    link: 'Проблема с изображением.',
+  },
+  byDocType: {
+    user: 'Такого пользователя нет',
+    card: 'Карточка не существует',
+  },
+  objectId: {
+    user: 'Ошибка в идентификаторе пользователя',
+    card: 'Ошибка в идентификаторе карточки',
+  },
+};
+
+function joinErrorMessages(fieldErrorMap, actualError) {
+  const expectedBadFields = Object.keys(fieldErrorMap);
+  const actualBadFields = Object.keys(actualError.errors);
+  const messageArray = [];
+  let jointErrorMessage = null;
+  if (expectedBadFields.some((field) => actualBadFields.includes(field))) {
+    expectedBadFields.forEach((field) => {
+      if (actualBadFields.includes(field)) {
+        messageArray.push(fieldErrorMap[field]);
+      }
+    });
+    jointErrorMessage = messageArray.join(' ');
+  }
+  return jointErrorMessage;
 }
 
-function searchForUser(array, id) {
-  return array.find((user) => user._id === id.toString());
+function isUserExistent(id) {
+  return User.exists({ _id: id });
 }
 
-function sendWholeJson(file, res) {
-  res.set({ 'content-type': 'application/json; charset=utf-8' });
-  readFileAsset(file, res).pipe(res);
+function isObjectIdValid(id, docType) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const error = new Error();
+    error.docType = docType;
+    throw error;
+  }
+}
+
+function createDocHandler(promise, req, res) {
+  promise
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
+}
+
+function getAllDocsHandler(promise, req, res) {
+  promise
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+    });
+}
+
+function getLikeDeleteHandler(promise, req, res, docType) {
+  promise
+    // .orFail() не работает, похоже на баг:
+    // https://github.com/Automattic/mongoose/issues/7280
+    .then((respObj) => {
+      if (respObj === null) {
+        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+      } else {
+        res.send({ data: respObj });
+      }
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
+}
+
+function updateHandler(promise, req, res) {
+  promise
+    .orFail()
+    .then((respObj) => res.send({ data: respObj }))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: `${errors.byDocType.user}` });
+      } else if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+      }
+    });
 }
 
 module.exports = {
-  readFileAsset,
-  searchForUser,
-  sendWholeJson,
+  createDocHandler,
+  getAllDocsHandler,
+  getLikeDeleteHandler,
+  updateHandler,
+  errors,
+  isUserExistent,
+  isObjectIdValid,
 };

@@ -1,33 +1,24 @@
-/* eslint-disable no-underscore-dangle */
 /* ИМПОРТ */
 const routerUsers = require('express').Router();
 
-const { readFileAsset, searchForUser, sendWholeJson } = require('../helpers/helpers.js');
+const {
+  createUser,
+  getAllUsers,
+  getSingleUser,
+  updateProfile,
+  updateAvatar,
+} = require('../controllers/users');
 
 /* РУТЕРЫ */
-routerUsers.get('/users', (req, res) => {
-  sendWholeJson('users.json', res);
-});
+routerUsers.get('/', getAllUsers);
 
-routerUsers.get('/users/:id', (req, res) => {
-  const usersReadStream = readFileAsset('users.json', res);
-  let users = '';
+routerUsers.get('/:id', getSingleUser);
 
-  usersReadStream.on('data', (data) => {
-    users += data;
-  });
+routerUsers.patch('/me', updateProfile);
 
-  usersReadStream.on('end', () => {
-    users = JSON.parse(users);
+routerUsers.patch('/me/avatar', updateAvatar);
 
-    if (!searchForUser(users, [req.params.id])) {
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-      return;
-    }
-
-    res.send(searchForUser(users, [req.params.id]));
-  });
-});
+routerUsers.post('/', createUser);
 
 /* ЭКСПОРТ */
 module.exports = routerUsers;
