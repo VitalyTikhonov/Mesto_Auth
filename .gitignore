@@ -16,4 +16,4 @@ node_modules
 
 V_Tikhonov_Course_05_Project_14.*
 # DevNotes.txt
-helpers/helpersAUX.js
+.env

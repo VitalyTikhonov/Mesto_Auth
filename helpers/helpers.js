@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+const tempKey = '09a0fdc421445fae5719b27f4d280f760e9a457dffd627e617d4992e6e4aa05f';
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
@@ -58,6 +61,20 @@ function createDocHandler(promise, req, res) {
     });
 }
 
+function loginHandler(promise, req, res) {
+  promise
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : tempKey,
+      );
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+}
+
 function getAllDocsHandler(promise, req, res) {
   promise
     .then((respObj) => res.send({ data: respObj }))
@@ -103,6 +120,7 @@ function updateHandler(promise, req, res) {
 
 module.exports = {
   createDocHandler,
+  loginHandler,
   getAllDocsHandler,
   getLikeDeleteHandler,
   updateHandler,

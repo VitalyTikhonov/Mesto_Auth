@@ -32,4 +32,11 @@
 Проектная работа 14
 ГОТОВО  1. Добавьте email и password к схеме пользователя
 ГОТОВО  2. Переработайте контроллер createUser
-        3. Создайте контроллер login
+ГОТОВО  3. Создайте контроллер login
+        5. Сделайте мидлвэр для авторизации
+
+const crypto = require('crypto');
+const randomString = crypto.randomBytes(16).toString('hex');
+console.log(randomString);
+
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'));"

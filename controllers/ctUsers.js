@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
   createDocHandler,
+  loginHandler,
   getAllDocsHandler,
   getLikeDeleteHandler,
   updateHandler,
@@ -32,16 +32,7 @@ function createUser(req, res) {
 
 function login(req, res) {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key');
-      res.send({ token });
-    })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+  return loginHandler(User.findUserByCredentials(email, password), req, res);
 }
 
 function getAllUsers(req, res) {
