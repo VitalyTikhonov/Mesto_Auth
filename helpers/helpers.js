@@ -62,7 +62,7 @@ function createDocHandler(promise, req, res) {
 }
 
 function loginHandler(promise, req, res) {
-  promise
+  promise // findUserByCredentials
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
