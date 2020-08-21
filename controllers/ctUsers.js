@@ -18,21 +18,29 @@ function createUser(req, res) {
     email,
     password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => {
-      createDocHandler(User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      }), req, res);
-    });
+
+  /* В тренажере такое было перед авторизацией. Но, аналогично, зачем считать хеш,
+  если почта не катит? */
+  User.findByEmail({ email }, req, res)
+    .then(
+      bcrypt.hash(password, 10)
+        .then((hash) => {
+          createDocHandler(User.create({
+            name,
+            about,
+            avatar,
+            email,
+            password: hash,
+          }), req, res);
+          /* Какая еще trailing comma?? */
+          // eslint-disable-next-line comma-dangle
+        })
+    );
 }
 
 function login(req, res) {
   const { email, password } = req.body;
-  return loginHandler(User.findUserByCredentials(email, password), req, res);
+  return loginHandler(User.findByCredentials(email, password), req, res);
 }
 
 function getAllUsers(req, res) {

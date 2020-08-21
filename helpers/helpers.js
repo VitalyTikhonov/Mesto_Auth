@@ -55,6 +55,8 @@ function createDocHandler(promise, req, res) {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else if (err.code === 11000) {
+        res.status(400).send({ message: 'Этот адрес электронной почты уже используется' });
       } else {
         res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
       }
