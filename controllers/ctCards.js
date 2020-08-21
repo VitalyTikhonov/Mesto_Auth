@@ -35,7 +35,6 @@ function deleteCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
-
     const { cardId } = req.params;
     isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
@@ -56,11 +55,13 @@ function likeCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
+    const { cardId } = req.params;
+    isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
           getLikeDeleteHandler(Card.findByIdAndUpdate(
-            req.params.cardId,
+            cardId,
             { $addToSet: { likes: userId } },
             { new: true },
           ), req, res, 'card');
@@ -78,11 +79,13 @@ function unlikeCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
+    const { cardId } = req.params;
+    isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
           getLikeDeleteHandler(Card.findByIdAndUpdate(
-            req.params.cardId,
+            cardId,
             { $pull: { likes: userId } },
             { new: true },
           ), req, res, 'card');

@@ -21,11 +21,20 @@ app.use(bodyParser.json());
 app.post('/signin', login);
 app.post('/signup', createUser);
 app.use(auth);
+// app.use((req, res, next) => {
+//   req.user = {
+//     // _id: '5f305eff48dca67ac55c19c2', // нет
+//     // _id: '5f3ec9ed938928c6bc7c7a8b', // vitalsense8@gmail.com
+//     _id: '5f3591131c8d4313a87367a', // невалидный
+//   };
+//   next();
+// });
 app.use('/cards', rCards);
 app.use('/users', rUsers);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
+// app.use();
 app.listen(PORT, () => {
   console.log(`Сервер запущен, порт: ${PORT}.`);
 });
