@@ -14,7 +14,7 @@ const errors = {
   },
   byDocType: {
     user: 'Такого пользователя нет',
-    card: 'Карточка не существует',
+    card: 'У пользователя нет такой карточки',
   },
   objectId: {
     user: 'Ошибка в идентификаторе пользователя',
@@ -70,8 +70,18 @@ function loginHandler(promise, req, res) {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : tempKey,
+        { expiresIn: '7d' },
       );
-      res.send({ token });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .end();
+
+      /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
+      // console.log('req.cookies.jwt', req.cookies.jwt);
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });
@@ -88,7 +98,7 @@ function getAllDocsHandler(promise, req, res) {
 
 function getLikeDeleteHandler(promise, req, res, docType) {
   promise
-    // .orFail() не работает, похоже на баг:
+    // .orFail() не работал, похоже на баг:
     // https://github.com/Automattic/mongoose/issues/7280
     .then((respObj) => {
       if (respObj === null) {

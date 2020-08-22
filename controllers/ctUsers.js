@@ -19,25 +19,32 @@ function createUser(req, res) {
     email,
   } = req.body;
 
-  /* По аналогии с тем, как в тренажере предложено сделать для авторизации
-  (User.findByCredentials), пытался сделать и здесь, чтобы проверять, не занята ли почта,
-  прежде чем считать хеш пароля. Но не получилось разобраться с множеством ошибок, которые
-  возникали. */
-  bcrypt.hash(password, 10)
-    .then((hash) => {
-      createDocHandler(User.create({
-        name,
-        about,
-        avatar,
-        password: hash,
-        email,
-      }), req, res);
-    });
+  if (password && password.length >= 8) {
+    /* По аналогии с тем, как в тренажере предложено сделать для авторизации
+    (User.findByCredentials), пытался сделать и здесь, чтобы проверять, не занята ли почта,
+    прежде чем считать хеш пароля. Но не получилось разобраться с множеством ошибок, которые
+    возникали. */
+    bcrypt.hash(password, 10)
+      .then((hash) => {
+        createDocHandler(User.create({
+          name,
+          about,
+          avatar,
+          password: hash,
+          email,
+        }), req, res);
+      });
+  } else {
+    res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов' });
+  }
 }
 
 function login(req, res) {
   const { email, password } = req.body;
-  return loginHandler(User.findByCredentials(email, password), req, res); // Зачем тут return?
+  if (typeof email === 'string' && typeof password === 'string') {
+    return loginHandler(User.findByCredentials(email, password), req, res); // Зачем тут return?
+  }
+  return res.status(400).send({ message: 'Введите логин и пароль' });
 }
 
 function getAllUsers(req, res) {
