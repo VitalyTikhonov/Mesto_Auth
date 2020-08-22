@@ -45,44 +45,15 @@
               редактировать только свой профиль/аватар. Если функция "Редактировать" окажется доступна не в своем профиле, то это проблема фронтенда,
               данные все равно пойдут либо в свой, либо никуда - сервер выдаст ошибку.
   ГОТОВО  9. Сделайте так, чтобы API не возвращал хеш пароля
+
+          Не обрабатывается ошибка невалдиных данных при создании пользователя. Перенести findByEmail в контроллер?
+
           По поводу проверки на минимальную длину пароля.
             Надо писать дополнительную проверку. Из-за хеширования паролей ограничения в модели не имеет смысла и можно его там не делать (я про minlength)
             Перед тем как делать операцию bcrypt.hash(password, 10)   можно проверять 1) во-первых что пароль вообще передан и там не undefined,
             2) а во-вторых валидировать его по длине
           Что там с солью
 
-const crypto = require('crypto');
-const randomString = crypto.randomBytes(16).toString('hex');
-console.log(randomString);
+// console.log('err\n', err);
 
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'));"
-
-vitalsense8@gmail.com
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjNlYzllZDkzODkyOGM2YmM3YzdhOGIiLCJpYXQiOjE1OTc5OTc2MDF9.4AyOAXAlTn0O689iBmqvSHIV72vsBJf-wsLoTq7dRpg
-
-{
-        "_id": "5f3fe76bc3250ab15047ef7e",
-        "name": "Джонни",
-        "about": "Матрос",
-        "avatar": "https://zakon.ru/Content/avatars/2b517d26-ecf8-40eb-ae38-e085f919d291.orig.jpg",
-        "email": "sailorjohn@gmail.com",
-        "password": "$2a$10$tjoTcnbwA/VyXYY8si/VRuaD40K1qD0yACgiqadYwcg66ak.0oyNu",
-        "__v": 0
-    }
-
-  токен
-  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjNmZTc2YmMzMjUwYWIxNTA0N2VmN2UiLCJpYXQiOjE1OTgwMjM2Mzh9.pAf5MjiQU9wb0zbsN3VbAzvl-YC_sTW53Dx0EbxWWNM
-
-
-  {
-    "data": {
-        "_id": "5f3fe83a01c6865950f56934",
-        "name": "Инокентий",
-        "about": "Иностранец",
-        "avatar": "https://zakon.ru/Content/avatars/2b517d26-ecf8-40eb-ae38-e085f919d291.orig.jpg",
-        "email": "foreigner@gmail.com",
-        "password": "$2a$10$VtjKRBukPZtknzRN9gSstu99OarMF2waj8JmjnaOzmrUqpV/CcLRS",
-        "__v": 0
-    }
-}
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjNmZTgzYTAxYzY4NjU5NTBmNTY5MzQiLCJpYXQiOjE1OTgwMjM5MTB9.aMT4Nivr35unZfYUqzkvXioYkjOH3lYtK-dCz16u0VY

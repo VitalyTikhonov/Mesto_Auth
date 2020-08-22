@@ -7,6 +7,7 @@ const tempKey = '09a0fdc421445fae5719b27f4d280f760e9a457dffd627e617d4992e6e4aa05
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
+    email: 'Ошибка в поле Email.',
     about: 'Ошибка в поле About.',
     avatar: 'Проблема с аватаркой.',
     link: 'Проблема с изображением.',

@@ -15,32 +15,29 @@ function createUser(req, res) {
     name,
     about,
     avatar,
-    email,
     password,
+    email,
   } = req.body;
 
-  /* В тренажере такое было перед авторизацией. Но, аналогично, зачем считать хеш,
-  если почта не катит? */
-  User.findByEmail({ email }, req, res)
-    .then(
-      bcrypt.hash(password, 10)
-        .then((hash) => {
-          createDocHandler(User.create({
-            name,
-            about,
-            avatar,
-            email,
-            password: hash,
-          }), req, res);
-          /* Какая еще trailing comma?? */
-          // eslint-disable-next-line comma-dangle
-        })
-    );
+  /* По аналогии с тем, как в тренажере предложено сделать для авторизации
+  (User.findByCredentials), пытался сделать и здесь, чтобы проверять, не занята ли почта,
+  прежде чем считать хеш пароля. Но не получилось разобраться с множеством ошибок, которые
+  возникали. */
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      createDocHandler(User.create({
+        name,
+        about,
+        avatar,
+        password: hash,
+        email,
+      }), req, res);
+    });
 }
 
 function login(req, res) {
   const { email, password } = req.body;
-  return loginHandler(User.findByCredentials(email, password), req, res);
+  return loginHandler(User.findByCredentials(email, password), req, res); // Зачем тут return?
 }
 
 function getAllUsers(req, res) {
