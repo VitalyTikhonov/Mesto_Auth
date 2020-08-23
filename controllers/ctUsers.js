@@ -8,6 +8,7 @@ const {
   updateHandler,
   errors,
   isObjectIdValid,
+  passwordRegexp,
 } = require('../helpers/helpers');
 
 function createUser(req, res) {
@@ -19,7 +20,7 @@ function createUser(req, res) {
     email,
   } = req.body;
 
-  if (password && password.length >= 8) {
+  if (password && password.length >= 8 && password.match(passwordRegexp)) {
     /* По аналогии с тем, как в тренажере предложено сделать для авторизации
     (User.findByCredentials), пытался сделать и здесь, чтобы проверять, не занята ли почта,
     прежде чем считать хеш пароля. Но не получилось разобраться с множеством ошибок, которые
@@ -35,7 +36,7 @@ function createUser(req, res) {
         }), req, res, 'user');
       });
   } else {
-    res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов' });
+    res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов, состоящий из латинских букв, цифр и специальных символов' });
   }
 }
 

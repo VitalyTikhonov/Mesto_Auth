@@ -22,6 +22,8 @@ const errors = {
   },
 };
 
+const passwordRegexp = /[\u0023-\u0126]+/;
+
 function joinErrorMessages(fieldErrorMap, actualError) {
   const expectedBadFields = Object.keys(fieldErrorMap);
   const actualBadFields = Object.keys(actualError.errors);
@@ -157,4 +159,5 @@ module.exports = {
   errors,
   isUserExistent,
   isObjectIdValid,
+  passwordRegexp,
 };
