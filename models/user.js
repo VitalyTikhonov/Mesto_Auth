@@ -36,7 +36,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.statics.findByCredentials = function findByCredentials(email, password) {
   return this.findOne({ email }).select('+password')
-  // return this.findOne({ email })
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));

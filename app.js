@@ -1,11 +1,12 @@
 require('dotenv').config();
+const rateLimit = require('express-rate-limit');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const rCards = require('./routes/rCards.js');
-const rUsers = require('./routes/rUsers.js');
-const { createUser, login } = require('./controllers/ctUsers.js');
+const rCards = require('./routes/cards.js');
+const rUsers = require('./routes/users.js');
+const { createUser, login } = require('./controllers/users.js');
 const auth = require('./middlewares/auth');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -14,10 +15,16 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
-
-const { PORT = 3000 } = process.env;
 const app = express();
 
+const { PORT = 3000 } = process.env;
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.post('/signin', login);

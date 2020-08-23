@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { tempKey } = require('../configs/config.js');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-const tempKey = '09a0fdc421445fae5719b27f4d280f760e9a457dffd627e617d4992e6e4aa05f';
+const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
@@ -61,12 +61,14 @@ function createDocHandler(promise, req, res, docType) {
           about,
           avatar,
           email,
+          _id,
         } = respObj;
         res.send({
           name,
           about,
           avatar,
           email,
+          _id,
         });
       } else {
         res.send(respObj);
