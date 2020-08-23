@@ -20,7 +20,7 @@ function createCard(req, res) {
     isUserExistent(owner)
       .then((checkResult) => {
         if (checkResult) {
-          createDocHandler(Card.create({ name, link, owner }), req, res);
+          createDocHandler(Card.create({ name, link, owner }), req, res, 'card');
         } else {
           throw new Error();
         }

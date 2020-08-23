@@ -32,7 +32,7 @@ function createUser(req, res) {
           avatar,
           password: hash,
           email,
-        }), req, res);
+        }), req, res, 'user');
       });
   } else {
     res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов' });

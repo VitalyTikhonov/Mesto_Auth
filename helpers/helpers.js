@@ -50,9 +50,26 @@ function isObjectIdValid(id, docType) {
   }
 }
 
-function createDocHandler(promise, req, res) {
+function createDocHandler(promise, req, res, docType) {
   promise
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => {
+      if (docType === 'user') {
+        const {
+          name,
+          about,
+          avatar,
+          email,
+        } = respObj;
+        res.send({
+          name,
+          about,
+          avatar,
+          email,
+        });
+      } else {
+        res.send(respObj);
+      }
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
@@ -90,7 +107,7 @@ function loginHandler(promise, req, res) {
 
 function getAllDocsHandler(promise, req, res) {
   promise
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => res.send(respObj))
     .catch((err) => {
       res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
     });
@@ -104,7 +121,7 @@ function getLikeDeleteHandler(promise, req, res, docType) {
       if (respObj === null) {
         res.status(404).send({ message: `${errors.byDocType[docType]}` });
       } else {
-        res.send({ data: respObj });
+        res.send(respObj);
       }
     })
     .catch((err) => {
@@ -119,7 +136,7 @@ function getLikeDeleteHandler(promise, req, res, docType) {
 function updateHandler(promise, req, res) {
   promise
     .orFail()
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => res.send(respObj))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: `${errors.byDocType.user}` });
