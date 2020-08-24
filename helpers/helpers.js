@@ -1,22 +1,28 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { tempKey } = require('../configs/config.js');
 
+const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
 const errors = {
   byField: {
     name: 'Ошибка в поле Name.',
+    email: 'Ошибка в поле Email.',
     about: 'Ошибка в поле About.',
     avatar: 'Проблема с аватаркой.',
     link: 'Проблема с изображением.',
   },
   byDocType: {
     user: 'Такого пользователя нет',
-    card: 'Карточка не существует',
+    card: 'Такой карточки нет',
   },
   objectId: {
     user: 'Ошибка в идентификаторе пользователя',
     card: 'Ошибка в идентификаторе карточки',
   },
 };
+
+const passwordRegexp = /[\u0023-\u0126]+/;
 
 function joinErrorMessages(fieldErrorMap, actualError) {
   const expectedBadFields = Object.keys(fieldErrorMap);
@@ -46,35 +52,80 @@ function isObjectIdValid(id, docType) {
   }
 }
 
-function createDocHandler(promise, req, res) {
+function createDocHandler(promise, req, res, docType) {
   promise
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => {
+      if (docType === 'user') {
+        const {
+          name,
+          about,
+          avatar,
+          email,
+          _id,
+        } = respObj;
+        res.send({
+          name,
+          about,
+          avatar,
+          email,
+          _id,
+        });
+      } else {
+        res.send(respObj);
+      }
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+      } else if (err.code === 11000) {
+        res.status(409).send({ message: 'Этот адрес электронной почты уже используется' });
       } else {
         res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
       }
     });
 }
 
+function loginHandler(promise, req, res) {
+  promise // findUserByCredentials
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : tempKey,
+        { expiresIn: '7d' },
+      );
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .end();
+
+      /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
+      // console.log('req.cookies.jwt', req.cookies.jwt);
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+}
+
 function getAllDocsHandler(promise, req, res) {
   promise
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => res.send(respObj))
     .catch((err) => {
       res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
     });
 }
 
-function getLikeDeleteHandler(promise, req, res, docType) {
+function getLikeDeleteHandler(promise, req, res, docType, userId) {
   promise
-    // .orFail() не работает, похоже на баг:
-    // https://github.com/Automattic/mongoose/issues/7280
+    .orFail()
     .then((respObj) => {
-      if (respObj === null) {
-        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+      if (respObj.owner.toString() === userId) {
+        respObj.deleteOne()
+          .then((deletedObj) => res.send(deletedObj));
       } else {
-        res.send({ data: respObj });
+        res.status(403).send({ message: 'Нельзя удалить чужую карточку' });
       }
     })
     .catch((err) => {
@@ -89,7 +140,7 @@ function getLikeDeleteHandler(promise, req, res, docType) {
 function updateHandler(promise, req, res) {
   promise
     .orFail()
-    .then((respObj) => res.send({ data: respObj }))
+    .then((respObj) => res.send(respObj))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: `${errors.byDocType.user}` });
@@ -103,10 +154,12 @@ function updateHandler(promise, req, res) {
 
 module.exports = {
   createDocHandler,
+  loginHandler,
   getAllDocsHandler,
   getLikeDeleteHandler,
   updateHandler,
   errors,
   isUserExistent,
   isObjectIdValid,
+  passwordRegexp,
 };

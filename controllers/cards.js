@@ -20,7 +20,7 @@ function createCard(req, res) {
     isUserExistent(owner)
       .then((checkResult) => {
         if (checkResult) {
-          createDocHandler(Card.create({ name, link, owner }), req, res);
+          createDocHandler(Card.create({ name, link, owner }), req, res, 'card');
         } else {
           throw new Error();
         }
@@ -35,13 +35,14 @@ function deleteCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
-
     const { cardId } = req.params;
     isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
-          getLikeDeleteHandler(Card.findByIdAndRemove(cardId), req, res, 'card');
+          getLikeDeleteHandler(Card.findById({ _id: cardId }), req, res, 'card', userId);
+          // getLikeDeleteHandler(Card.findO
+          // neAndRemove({ _id: cardId, owner: userId }), req, res, 'card');
         } else {
           throw new Error();
         }
@@ -56,11 +57,13 @@ function likeCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
+    const { cardId } = req.params;
+    isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
           getLikeDeleteHandler(Card.findByIdAndUpdate(
-            req.params.cardId,
+            cardId,
             { $addToSet: { likes: userId } },
             { new: true },
           ), req, res, 'card');
@@ -78,11 +81,13 @@ function unlikeCard(req, res) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
+    const { cardId } = req.params;
+    isObjectIdValid(cardId, 'card');
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
           getLikeDeleteHandler(Card.findByIdAndUpdate(
-            req.params.cardId,
+            cardId,
             { $pull: { likes: userId } },
             { new: true },
           ), req, res, 'card');
