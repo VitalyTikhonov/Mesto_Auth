@@ -40,7 +40,9 @@ function deleteCard(req, res) {
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
-          getLikeDeleteHandler(Card.findOneAndRemove({ _id: cardId, owner: userId }), req, res, 'card');
+          getLikeDeleteHandler(Card.findById({ _id: cardId }), req, res, 'card', userId);
+          // getLikeDeleteHandler(Card.findO
+          // neAndRemove({ _id: cardId, owner: userId }), req, res, 'card');
         } else {
           throw new Error();
         }

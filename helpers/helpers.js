@@ -14,7 +14,7 @@ const errors = {
   },
   byDocType: {
     user: 'Такого пользователя нет',
-    card: 'У пользователя нет такой карточки',
+    card: 'Такой карточки нет',
   },
   objectId: {
     user: 'Ошибка в идентификаторе пользователя',
@@ -117,15 +117,15 @@ function getAllDocsHandler(promise, req, res) {
     });
 }
 
-function getLikeDeleteHandler(promise, req, res, docType) {
+function getLikeDeleteHandler(promise, req, res, docType, userId) {
   promise
-    // .orFail() не работал, похоже на баг:
-    // https://github.com/Automattic/mongoose/issues/7280
+    .orFail()
     .then((respObj) => {
-      if (respObj === null) {
-        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+      if (respObj.owner.toString() === userId) {
+        respObj.deleteOne()
+          .then((deletedObj) => res.send(deletedObj));
       } else {
-        res.send(respObj);
+        res.status(403).send({ message: 'Нельзя удалить чужую карточку' });
       }
     })
     .catch((err) => {
