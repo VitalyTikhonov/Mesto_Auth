@@ -121,7 +121,8 @@ function getLikeDeleteHandler(promise, req, res, docType, userId) {
   promise
     .orFail()
     .then((respObj) => {
-      if (respObj.owner.toString() === userId) {
+      // if (respObj.owner.toString() === userId) { // работало, но не декларативно
+      if (respObj.owner.equals(userId)) {
         respObj.deleteOne()
           .then((deletedObj) => res.send(deletedObj));
       } else {

@@ -40,7 +40,12 @@ function deleteCard(req, res) {
     isUserExistent(userId)
       .then((checkResult) => {
         if (checkResult) {
-          getLikeDeleteHandler(Card.findById({ _id: cardId }), req, res, 'card', userId);
+          getLikeDeleteHandler(Card.findById(cardId), req, res, 'card', userId);
+
+          /* Так работало, но зачем */
+          // getLikeDeleteHandler(Card.findById({ _id: cardId }), req, res, 'card', userId);
+
+          /* Так работало, но не давало проверить владельца для дифференциации ошибок */
           // getLikeDeleteHandler(Card.findO
           // neAndRemove({ _id: cardId, owner: userId }), req, res, 'card');
         } else {
