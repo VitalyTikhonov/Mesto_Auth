@@ -1,5 +1,5 @@
 /* ИМПОРТ */
-const routerUsers = require('express').Router();
+const router = require('express').Router();
 
 const {
   getAllUsers,
@@ -9,13 +9,13 @@ const {
 } = require('../controllers/users');
 
 /* РУТЕРЫ */
-routerUsers.get('/', getAllUsers);
+router.get('/', getAllUsers);
 
-routerUsers.get('/:id', getSingleUser);
+router.get('/:id', getSingleUser);
 
-routerUsers.patch('/me', updateProfile);
+router.patch('/me', updateProfile);
 
-routerUsers.patch('/me/avatar', updateAvatar);
+router.patch('/me/avatar', updateAvatar);
 
 /* ЭКСПОРТ */
-module.exports = routerUsers;
+module.exports = router;

@@ -1,5 +1,5 @@
 /* ИМПОРТ */
-const routerCards = require('express').Router();
+const router = require('express').Router();
 const {
   getAllCards,
   createCard,
@@ -9,15 +9,15 @@ const {
 } = require('../controllers/cards');
 
 /* РУТЕРЫ */
-routerCards.get('/', getAllCards);
+router.get('/', getAllCards);
 
-routerCards.post('/', createCard);
+router.post('/', createCard);
 
-routerCards.delete('/:cardId', deleteCard);
+router.delete('/:cardId', deleteCard);
 
-routerCards.put('/:cardId/likes', likeCard);
+router.put('/:cardId/likes', likeCard);
 
-routerCards.delete('/:cardId/likes', unlikeCard);
+router.delete('/:cardId/likes', unlikeCard);
 
 /* ЭКСПОРТ */
-module.exports = routerCards;
+module.exports = router;
