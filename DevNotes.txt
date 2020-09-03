@@ -88,3 +88,19 @@
 =========== ПОЛЕЗНЫЙ КОД ===========
   console.log('err\n', err);
   node -e "console.log(require('crypto').randomBytes(32).toString('hex'));"
+
+
+server {
+        listen 80;
+
+        server_name mestoapp.gq www.mestoapp.gq;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
